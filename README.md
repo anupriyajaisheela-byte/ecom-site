@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Fruits Shop - Simple E-commerce Demo
 
 This is a small e-commerce demo (fruits shop) with:
@@ -185,3 +186,6 @@ Files:
 - `shop/` - Django app with models and API views
 - `templates/index.html` - frontend template (Bootstrap UI)
 - `static/` - frontend static files (`styles.css`, `main.js`)
+=======
+# ecom-site
+>>>>>>> f99579f32c6b4e5f4bb091b4b6b8a56106de79a1
