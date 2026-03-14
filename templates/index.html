@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fruits Shop</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Fruits Shop</a>
+        <button
+          class="btn btn-outline-light"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#cartOffcanvas"
+          aria-controls="cartOffcanvas"
+        >
+          🧺 Bucket
+          <span id="nav-count" class="badge bg-light text-dark ms-2">0</span>
+        </button>
+      </div>
+    </nav>
+
+    <main class="container my-4">
+      <div class="row" id="product-list">
+        <!-- product cards will be injected here -->
+      </div>
+    </main>
+
+    <!-- Offcanvas Cart -->
+    <div
+      class="offcanvas offcanvas-end"
+      tabindex="-1"
+      id="cartOffcanvas"
+      aria-labelledby="cartOffcanvasLabel"
+    >
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="cartOffcanvasLabel">Your Bucket</h5>
+        <button
+          type="button"
+          class="btn-close text-reset"
+          data-bs-dismiss="offcanvas"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="offcanvas-body d-flex flex-column">
+        <div id="cart-list" class="list-group mb-3"></div>
+        <div class="mt-auto">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong>Total:</strong>
+            <div>₹<span id="total">0.00</span></div>
+          </div>
+          <div class="d-grid">
+            <button id="checkout" class="btn btn-primary">
+              Confirm Purchase
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Order</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div id="order-time" class="text-muted small mb-2"></div>
+            <div id="order-summary"></div>
+            <div class="mt-3 text-end">
+              <strong>Total: ₹<span id="modal-total">0.00</span></strong>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button id="confirm-order" type="button" class="btn btn-success">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/main.js"></script>
+  </body>
+</html>
