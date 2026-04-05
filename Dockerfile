@@ -9,6 +9,8 @@ RUN pip install gunicorn
 COPY . .
 EXPOSE 8080
 CMD ["gunicorn", "--bind", ":8080", "--workers", "2", "ecom_site.wsgi:application"]
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 # 1. First, create the database tables
 RUN python manage.py migrate --noinput
 
