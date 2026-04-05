@@ -9,3 +9,5 @@ RUN pip install gunicorn
 COPY . .
 EXPOSE 8080
 CMD ["gunicorn", "--bind", ":8080", "--workers", "2", "ecom_site.wsgi:application"]
+# Add this line to run our admin script
+RUN python manage.py shell < create_admin.py
