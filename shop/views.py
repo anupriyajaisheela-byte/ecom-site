@@ -16,8 +16,8 @@ def _get_session_key(request):
 
 def products(request):
     prods = Product.objects.all()
-    # This renders the index.html file with your fruit data
-    return render(request, 'index.html', {'products': prods})
+    data = [{'id': p.id, 'name': p.name, 'price': p.price, 'image': p.image.url if p.image else ''} for p in prods]
+    return JsonResponse(data, safe=False)
 
 
 def get_cart(request):
