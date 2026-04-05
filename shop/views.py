@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -15,8 +16,8 @@ def _get_session_key(request):
 
 def products(request):
     prods = Product.objects.all()
-    data = [{'id': p.id, 'name': p.name, 'price': p.price, 'description': p.description, 'image': f'{settings.MEDIA_URL}{p.image}' if p.image else ''} for p in prods]
-    return JsonResponse(data, safe=False)
+    # This renders the index.html file with your fruit data
+    return render(request, 'index.html', {'products': prods})
 
 
 def get_cart(request):
