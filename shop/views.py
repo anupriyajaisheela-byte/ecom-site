@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -15,7 +16,18 @@ def _get_session_key(request):
 
 def products(request):
     prods = Product.objects.all()
-    data = [{'id': p.id, 'name': p.name, 'price': p.price, 'description': p.description, 'image': f'{settings.MEDIA_URL}{p.image}' if p.image else ''} for p in prods]
+    data = []
+    for p in prods:
+        # We manually point to the folder where your images are stored
+        # Change 'media/' to 'static/' if your images are in the static folder
+        image_path = f"{settings.MEDIA_URL}{p.name.lower()}.jpg" 
+        
+        data.append({
+            'id': p.id,
+            'name': p.name,
+            'price': p.price,
+            'image': image_path  # This uses the file already in your project
+        })
     return JsonResponse(data, safe=False)
 
 
