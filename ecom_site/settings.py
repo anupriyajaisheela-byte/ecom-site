@@ -1,6 +1,10 @@
 import os
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+import pymysql
+import dj_database_url
+
+pymysql.install_as_MySQLdb()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
