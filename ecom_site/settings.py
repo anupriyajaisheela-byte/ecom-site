@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
-import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -63,6 +62,14 @@ WSGI_APPLICATION = 'ecom_site.wsgi.application'
 # MYSQL_DB is set, otherwise to local sqlite for development.
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
+    try:
+        import dj_database_url
+    except ImportError:
+        raise ImproperlyConfigured(
+            "DATABASE_URL is set but the 'dj-database-url' package is not installed. "
+            "Install it with 'pip install dj-database-url' or add it to your requirements."
+        )
+
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
     }
