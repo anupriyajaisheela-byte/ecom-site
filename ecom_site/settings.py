@@ -66,12 +66,51 @@ if DATABASE_URL:
         import dj_database_url
     except ImportError:
         raise ImproperlyConfigured(
-            "DATABASE_URL is set but the 'dj-database-url' package is not installed. "
-            "Install it with 'pip install dj-database-url' or add it to your requirements."
+            "DATABASE_URL is set but the 'dj-database-url' package is not installed."
         )
 
+    # 1. Parse the configuration from the URL
+    db_config = dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+
+    # 2. Fix the 'ssl-mode' vs 'ssl_mode' issue for MySQL
+    if db_config.get('ENGINE') == 'django.db.backends.mysql':
+        if 'OPTIONS' not in db_config:
+            db_config['OPTIONS'] = {}
+        
+        # If dj_database_url added 'ssl-mode', rename it to 'ssl_mode'
+        if 'ssl-mode' in db_config['OPTIONS']:
+            db_config['OPTIONS']['ssl_mode'] = db_config['OPTIONS'].pop('ssl-mode')
+
+        # If an ssl CA is provided via env vars, write it to a temp file
+        # and set `OPTIONS['ssl'] = {'ca': <path>}` so DB drivers that
+        # expect an `ssl` dict will use it. This mirrors the logic used
+        # for the `MYSQL_DB` branch above.
+        if 'ssl_mode' in db_config['OPTIONS']:
+            ssl_ca_path = None
+            if os.environ.get('MYSQL_SSL_CA'):
+                ssl_ca_path = os.environ.get('MYSQL_SSL_CA')
+            elif os.environ.get('MYSQL_SSL_CA_BASE64'):
+                import base64
+                import tempfile
+
+                ca_b64 = os.environ.get('MYSQL_SSL_CA_BASE64')
+                try:
+                    ca_bytes = base64.b64decode(ca_b64)
+                    tmp = tempfile.NamedTemporaryFile(delete=False)
+                    tmp.write(ca_bytes)
+                    tmp.flush()
+                    ssl_ca_path = tmp.name
+                except Exception:
+                    ssl_ca_path = None
+
+            if ssl_ca_path and 'ssl' not in db_config['OPTIONS']:
+                db_config['OPTIONS']['ssl'] = {'ca': ssl_ca_path}
+
+            # Remove `ssl_mode` to avoid passing unsupported kwargs to
+            # certain MySQL drivers (they will use `ssl` dict instead).
+            db_config['OPTIONS'].pop('ssl_mode', None)
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+        'default': db_config
     }
 else:
     MYSQL_DB = os.environ.get('MYSQL_DB')
