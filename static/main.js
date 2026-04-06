@@ -1,4 +1,12 @@
-const api = (path, opts) => fetch(path, opts).then(r => r.json());
+const api = async (path, opts) => {
+  const res = await fetch(path, opts);
+  const ctype = res.headers.get('content-type') || '';
+  let body;
+  if (ctype.includes('application/json')) body = await res.json();
+  else body = await res.text();
+  if (!res.ok) throw new Error(typeof body === 'object' ? (body.error || JSON.stringify(body)) : body || 'API error');
+  return body;
+};
 
 // Format number using Indian numbering system (e.g. 1,23,45,678.90)
 function formatINR(number){
@@ -59,18 +67,41 @@ async function loadCart(){
     el.querySelector('.addone').addEventListener('click', () => addToCart(i.product_id, 1));
     list.appendChild(el);
   });
+  // Update product card quantity inputs to reflect cart contents
+  document.querySelectorAll('.qty-input').forEach(el => el.value = 1);
+  cart.items.forEach(i => {
+    const btn = document.querySelector(`.add-btn[data-id="${i.product_id}"]`);
+    if (btn) {
+      const card = btn.closest('.card');
+      if (card) {
+        const input = card.querySelector('.qty-input');
+        if (input) input.value = i.quantity;
+      }
+    }
+  });
+
   document.getElementById('total').textContent = formatINR(cart.total);
   navCount.textContent = count;
 }
 
 async function addToCart(product_id, qty=1){
-  await api('/api/cart/add', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({product_id, quantity:qty})});
-  await loadCart();
+  try{
+    await api('/api/cart/add', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({product_id, quantity:qty})});
+  }catch(e){
+    console.error('addToCart error', e);
+  }finally{
+    await loadCart();
+  }
 }
 
 async function removeFromCart(product_id, qty=1){
-  await api('/api/cart/remove', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({product_id, quantity:qty})});
-  await loadCart();
+  try{
+    await api('/api/cart/remove', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({product_id, quantity:qty})});
+  }catch(e){
+    console.error('removeFromCart error', e);
+  }finally{
+    await loadCart();
+  }
 }
 
 async function openCheckoutModal(){
@@ -105,8 +136,10 @@ async function confirmOrder(){
   await loadCart();
 }
 
-document.getElementById('checkout').addEventListener('click', openCheckoutModal);
-document.getElementById('confirm-order').addEventListener('click', confirmOrder);
+const checkoutBtn = document.getElementById('checkout');
+if (checkoutBtn) checkoutBtn.addEventListener('click', openCheckoutModal);
+const confirmBtn = document.getElementById('confirm-order');
+if (confirmBtn) confirmBtn.addEventListener('click', confirmOrder);
 
 loadProducts();
 loadCart();

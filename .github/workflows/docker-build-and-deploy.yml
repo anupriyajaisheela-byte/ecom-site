@@ -1,0 +1,56 @@
+name: Build, push Docker image and (optionally) deploy to Render
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/ecom:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/ecom:latest
+
+      - name: Output image name
+        run: echo "IMAGE=ghcr.io/${{ github.repository_owner }}/ecom:${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Trigger Render deploy (optional)
+        if: ${{ secrets.RENDER_API_KEY && secrets.RENDER_SERVICE_ID }}
+        env:
+          RENDER_API_TOKEN: ${{ secrets.RENDER_API_KEY }}
+          SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          IMAGE_TAG: ghcr.io/${{ github.repository_owner }}/ecom:${{ github.sha }}
+        run: |
+          echo "Triggering Render deploy for $IMAGE_TAG"
+          curl -s -X POST "https://api.render.com/v1/services/$SERVICE_ID/deploys" \
+            -H "Authorization: Bearer $RENDER_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"image":"'"$IMAGE_TAG"'"}' \
+          | jq || true

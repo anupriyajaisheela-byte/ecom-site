@@ -18,15 +18,19 @@ def products(request):
     prods = Product.objects.all()
     data = []
     for p in prods:
-        # We manually point to the folder where your images are stored
-        # Change 'media/' to 'static/' if your images are in the static folder
-        image_path = f"{settings.MEDIA_URL}{p.name.lower()}.jpg" 
-        
+        # Prefer the ImageField's URL when available so uploaded media works
+        if p.image and hasattr(p.image, 'url'):
+            image_path = p.image.url
+        else:
+            # fallback to a products/ path under MEDIA
+            image_path = f"{settings.MEDIA_URL}products/{p.name.lower()}.jpg"
+
         data.append({
             'id': p.id,
             'name': p.name,
             'price': p.price,
-            'image': image_path  # This uses the file already in your project
+            'description': p.description,
+            'image': image_path
         })
     return JsonResponse(data, safe=False)
 

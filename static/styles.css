@@ -1,6 +1,6 @@
 
 body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f3f7f9; color:#111 }
-.card-img-top { height:160px; object-fit:cover }
+.card-img-top { display: block; width: 100%; height: 160px; object-fit: contain; object-position: center; background-color: #f8f9fa }
 .product-card { transition: transform .12s ease, box-shadow .12s ease }
 .product-card:hover { transform: translateY(-6px); box-shadow: 0 10px 20px rgba(0,0,0,0.08) }
 .badge-price { background: rgba(255,255,255,0.9); color:#111; font-weight:600 }
