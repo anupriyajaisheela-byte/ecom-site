@@ -76,19 +76,46 @@ if DATABASE_URL:
 else:
     MYSQL_DB = os.environ.get('MYSQL_DB')
     if MYSQL_DB:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': MYSQL_DB,
-                'USER': os.environ.get('MYSQL_USER', 'ecom_user'),
-                'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''),
-                'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
-                'PORT': os.environ.get('MYSQL_PORT', '3306'),
-                'OPTIONS': {
-                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-                },
+            # Support Aiven-style MySQL connections that require an SSL CA.
+            # You can provide the CA as a file path in `MYSQL_SSL_CA`, or as
+            # a base64-encoded string in `MYSQL_SSL_CA_BASE64` (recommended
+            # for Render environment variables). If neither is provided the
+            # connection will proceed without an explicit CA file.
+            ssl_ca_path = None
+            if os.environ.get('MYSQL_SSL_CA'):
+                ssl_ca_path = os.environ.get('MYSQL_SSL_CA')
+            elif os.environ.get('MYSQL_SSL_CA_BASE64'):
+                import base64
+                import tempfile
+
+                ca_b64 = os.environ.get('MYSQL_SSL_CA_BASE64')
+                try:
+                    ca_bytes = base64.b64decode(ca_b64)
+                    tmp = tempfile.NamedTemporaryFile(delete=False)
+                    tmp.write(ca_bytes)
+                    tmp.flush()
+                    ssl_ca_path = tmp.name
+                except Exception:
+                    ssl_ca_path = None
+
+            options = {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                'charset': 'utf8mb4',
             }
-        }
+            if ssl_ca_path:
+                options['ssl'] = {'ca': ssl_ca_path}
+
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': MYSQL_DB,
+                    'USER': os.environ.get('MYSQL_USER', 'ecom_user'),
+                    'PASSWORD': os.environ.get('MYSQL_PASSWORD', ''),
+                    'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
+                    'PORT': os.environ.get('MYSQL_PORT', '3306'),
+                    'OPTIONS': options,
+                }
+            }
     else:
         # Fallback to a local sqlite database for easy local development
         import warnings

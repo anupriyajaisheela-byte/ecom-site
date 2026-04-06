@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+
 # Fruits Shop - Simple E-commerce Demo
 
 This is a small e-commerce demo (fruits shop) with:
@@ -185,7 +186,25 @@ Files:
 - `ecom_site/` - Django project settings and URLs
 - `shop/` - Django app with models and API views
 - `templates/index.html` - frontend template (Bootstrap UI)
-- `static/` - frontend static files (`styles.css`, `main.js`)
-=======
+- # `static/` - frontend static files (`styles.css`, `main.js`)
+
 # ecom-site
->>>>>>> f99579f32c6b4e5f4bb091b4b6b8a56106de79a1
+
+> > > > > > > f99579f32c6b4e5f4bb091b4b6b8a56106de79a1
+
+## Render / Aiven deployment notes
+
+If you deploy this project to Render and connect to an Aiven (or other managed) MySQL instance, follow these steps:
+
+- Ensure `requirements.txt` includes `PyMySQL` and `dj-database-url` (done).
+- Provide either `DATABASE_URL` (standard) or `MYSQL_*` env vars (`MYSQL_DB`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, `MYSQL_PORT`).
+- If Aiven requires SSL, add the CA certificate as an environment variable named `MYSQL_SSL_CA_BASE64` (base64 of the PEM file). The app will write this to a temp file and pass it to the DB driver.
+- To fail fast during start, add this check to your Render Start Command before launching Gunicorn / the app process:
+
+```bash
+python manage.py check_db || exit 1
+# then start your server, e.g.:
+gunicorn ecom_site.wsgi:application --bind 0.0.0.0:$PORT
+```
+
+Watch build logs to confirm `pip install -r requirements.txt` completed and that `PyMySQL` and `dj-database-url` were installed. If a package fails to build on Windows during local testing, try running in WSL or check Render logs (Render builds on Linux and usually installs prebuilt wheels).
