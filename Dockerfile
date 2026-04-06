@@ -36,4 +36,4 @@ EXPOSE 8080
 
 # Entrypoint handles DB migrations and collectstatic at container start
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]
-CMD ["gunicorn", "--bind", ":8080", "--workers", "2", "ecom_site.wsgi:application"]
+CMD ["gunicorn ==22.0.0", "--bind", ":8080", "--workers", "2", "ecom_site.wsgi:application"]
