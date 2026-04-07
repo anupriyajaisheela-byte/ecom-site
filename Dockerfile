@@ -30,10 +30,10 @@ COPY . .
 RUN chmod +x /app/scripts/entrypoint.sh
 
 # 6. Port configuration
-ENV PORT 8080
-EXPOSE 8080
+ENV PORT 10000
+EXPOSE 10000
 
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]
 
 # 7. Fixed Gunicorn command
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "ecom_site.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--workers", "2", "ecom_site.wsgi:application"]
