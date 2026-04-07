@@ -1,10 +1,18 @@
+const BACKEND_URL = "https://ecom-site-9xmy.onrender.com"; 
+
+// 2. Define the api function once
 const api = async (path, opts) => {
-  const res = await fetch(path, opts);
+  const res = await fetch(`${BACKEND_URL}${path}`, opts);
   const ctype = res.headers.get('content-type') || '';
   let body;
-  if (ctype.includes('application/json')) body = await res.json();
-  else body = await res.text();
-  if (!res.ok) throw new Error(typeof body === 'object' ? (body.error || JSON.stringify(body)) : body || 'API error');
+  if (ctype.includes('application/json')) {
+    body = await res.json();
+  } else {
+    body = await res.text();
+  }
+  if (!res.ok) {
+    throw new Error(typeof body === 'object' ? (body.error || JSON.stringify(body)) : body || 'API error');
+  }
   return body;
 };
 
