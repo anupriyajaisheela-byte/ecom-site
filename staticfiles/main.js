@@ -1,5 +1,7 @@
-const api = (path, opts) => fetch(path, opts).then(r => r.json());
+// Change this to your ACTUAL Backend URL from the Render Dashboard
+const BACKEND_URL = "https://your-django-app.onrender.com"; 
 
+const api = (path, opts) => fetch(`${BACKEND_URL}${path}`, opts).then(r => r.json());
 // Format number using Indian numbering system (e.g. 1,23,45,678.90)
 function formatINR(number){
   const n = Number(number || 0).toFixed(2);
