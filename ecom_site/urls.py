@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('shop.urls')), 
+    path('', include('shop.urls')),
 ]
 
 # This ensures images and CSS work on Render
