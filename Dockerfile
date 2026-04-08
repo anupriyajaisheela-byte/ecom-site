@@ -36,4 +36,4 @@ EXPOSE 8080
 ENTRYPOINT ["/app/scripts/entrypoint.sh"]
 
 # 7. Fixed Gunicorn command
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "ecom_site.wsgi:application"]
+CMD ["gunicorn", "--workers", "1", "--bind", "0.0.0.0:8080", "ecom_site.wsgi:application"]
